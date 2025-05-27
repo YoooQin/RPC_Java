@@ -22,7 +22,7 @@ public class RpcResponse implements Serializable{
         .build();
     }
     //失败信息
-    public static RpcResponse fail(Integer code,String message){
+    public static RpcResponse fail(){
         return RpcResponse.builder()
         .code(500)
         .message("服务器发生错误")
