@@ -2,10 +2,10 @@ package Server;
 
 import Server.provider.ServiceProvider;
 import Server.server.RpcServer;
-import Server.server.impl.SimpleRPCServer;
+import Server.server.impl.NettyRpcServer;
+//import Server.server.impl.SimpleRPCServer;
 import common.service.UserService;
 import common.service.impl.UserServiceImpl;
-
 
 public class TestServer {
     public static void main(String[] args) {
@@ -16,7 +16,7 @@ public class TestServer {
         //将服务实例注册到服务提供者中
         serviceProvider.provideServiceInterface(userService);
         //创建一个服务器实例
-        RpcServer rpcServer = new SimpleRPCServer(serviceProvider);
+        RpcServer rpcServer = new NettyRpcServer(serviceProvider);
         //启动服务器
         rpcServer.start(9999);
     }

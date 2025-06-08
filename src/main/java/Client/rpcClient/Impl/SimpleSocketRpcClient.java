@@ -1,16 +1,22 @@
-package Client;
+package Client.rpcClient.Impl;
 
+import Client.rpcClient.RpcClient;
+import common.Message.RpcRequest;
+import common.Message.RpcResponse;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-import common.Message.RpcRequest;
-import common.Message.RpcResponse;
-
-public class IOClient {
-    //负责底层与服务端的通信，发送request，返回response
-    public static RpcResponse sendRequest(String host,int port,RpcRequest request){//服务端的IP地址，端口号，请求对象
+public class SimpleSocketRpcClient implements RpcClient{
+    String host;//主机地址
+    int port;//端口号
+    public SimpleSocketRpcClient(String host,int port){
+        this.host = host;
+        this.port = port;
+    }
+    @Override
+    public RpcResponse sendRequest(RpcRequest request){//请求对象
         try{
             //通过socket与服务端建立TCP连接
             Socket socket = new Socket(host,port);
