@@ -6,7 +6,7 @@ import common.pojo.User;
 public class TestClient {
     public static void main(String[] args) {
         //创建ClientProxy对象，并将其连接到服务端
-        ClientProxy clientProxy = new ClientProxy("127.0.0.1",9999,0);
+        ClientProxy clientProxy = new ClientProxy();
         //创建代理对象
         UserService userService = clientProxy.getProxy(UserService.class);
         User user = userService.getUserByUserId(1);

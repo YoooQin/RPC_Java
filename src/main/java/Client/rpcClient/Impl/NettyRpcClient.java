@@ -11,15 +11,17 @@ import common.Message.RpcRequest;
 import common.Message.RpcResponse;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
+import Client.serviceCenter.ZKServiceCenter;
+import Client.serviceCenter.serviceCenter;
+import java.net.InetSocketAddress;
 
 public class NettyRpcClient implements RpcClient{
-    private String host;
-    private int port;
     private static final Bootstrap bootstrap;
     private static final EventLoopGroup eventLoopGroup;
-    public NettyRpcClient(String host,int port){
-        this.host = host;
-        this.port = port;
+
+    private serviceCenter serviceCenter;
+    public NettyRpcClient(){
+        this.serviceCenter = new ZKServiceCenter();
     }
     // netty客户端初始化，重复使用，所以用static
     static{
@@ -32,6 +34,10 @@ public class NettyRpcClient implements RpcClient{
     @Override
     public RpcResponse sendRequest(RpcRequest request){
         try{
+            //从注册中心获取host,port
+            InetSocketAddress address = serviceCenter.serviceDiscovery(request.getInterfaceName());
+            String host = address.getHostName();
+            int port = address.getPort();
             //创建一个ChannelFuture对象，代表这一个操作对象，sync方法表示阻塞直到connect完成
             ChannelFuture future = bootstrap.connect(host,port).sync();
             //channel表示一个连接的单位，类似socket

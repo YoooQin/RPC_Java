@@ -7,8 +7,8 @@
 - Java 21
 - Maven 3.9
 - Netty 4.1.107.Final
-- ZooKeeper 3.7.2（计划中）
-- Curator 5.6.0（计划中）
+- ZooKeeper 3.7.2
+- Curator 5.6.0
 - Lombok
 - SLF4J + Log4j2
 
@@ -22,6 +22,7 @@ src/main/java/
 │   └── service/           # 服务接口定义
 ├── Server/                # 服务端模块
 │   ├── provider/          # 服务提供者（服务注册）
+│   ├── serviceRegister/   # ZooKeeper 服务注册实现
 │   ├── server/           # 服务器实现
 │   │   ├── impl/         # 具体服务器实现类（Simple/ThreadPool/Netty）
 │   │   └── work/         # 工作线程处理
@@ -31,6 +32,7 @@ src/main/java/
 │   └── TestServer.java   # 服务端测试类
 └── Client/                # 客户端模块
     ├── proxy/            # 动态代理实现
+    ├── serviceCenter/    # ZooKeeper 服务发现实现
     ├── netty/            # Netty 客户端实现
     │   ├── handler/      # Netty 处理器
     │   └── nettyInitializer/ # Netty 初始化器
@@ -48,7 +50,9 @@ src/main/java/
 - 支持多种客户端实现
   - 简单 Socket 客户端
   - Netty 客户端
-- 服务注册与发现（计划中）
+- 服务注册与发现
+  - 基于 ZooKeeper 的服务注册中心
+  - 服务自动发现与负载均衡
 - 网络通信
   - 基于 Socket 的 BIO 实现
   - 基于 Netty 的 NIO 实现
@@ -58,11 +62,14 @@ src/main/java/
 
 - JDK 21
 - Maven 3.9+
-- ZooKeeper 3.7.2（计划中）
+- ZooKeeper 3.7.2
 
 ## 构建和运行
 
 ```bash
+# 启动 ZooKeeper 服务
+# 确保 ZooKeeper 已安装并运行在默认端口 2181
+
 # 构建项目
 mvn clean install
 
@@ -83,12 +90,12 @@ mvn exec:java -Dexec.mainClass="Client.proxy.TestClient" -Dexec.args="netty"
 
 1. 定义服务接口（在 common.service 包中）
 2. 实现服务接口（在服务端）
-3. 注册服务（使用 ServiceProvider）
-4. 客户端通过代理调用远程服务，可选择不同的实现方式
+3. 注册服务（使用 ServiceProvider，自动注册到 ZooKeeper）
+4. 客户端通过代理调用远程服务，自动从 ZooKeeper 发现服务
 
 ## 待实现功能
 
-- [ ] 服务注册中心（ZooKeeper）
+- [x] 服务注册中心（ZooKeeper）
 - [ ] 负载均衡
 - [ ] 服务熔断
 - [ ] 异步调用
