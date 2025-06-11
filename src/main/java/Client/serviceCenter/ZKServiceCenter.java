@@ -4,6 +4,12 @@ import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+
+import Client.cache.serviceCache;
+import Client.serviceCenter.ZkWatcher.WatchZk;
+import Client.serviceCenter.balance.Impl.ConsistencyHashBalance;
+
+
 import java.net.InetSocketAddress;
 import java.util.List;
 
@@ -12,9 +18,11 @@ public class ZKServiceCenter implements serviceCenter {
     private CuratorFramework client;
     //zookeeper根路径节点
     private static final String ROOT_PATH = "MyRPC";
+    //serviceCache
+    private serviceCache cache;
 
     //负责zookeeper客户端的初始化，并与zookeeper服务端建立连接
-    public ZKServiceCenter() {
+    public ZKServiceCenter() throws InterruptedException {
         //指数时间尝试
         RetryPolicy policy = new ExponentialBackoffRetry(1000, 3);
         //zookeeper的地址固定，不管是服务提供者还是消费者都要与之建立连接
@@ -26,17 +34,25 @@ public class ZKServiceCenter implements serviceCenter {
         .retryPolicy(policy).namespace(ROOT_PATH).build();
         this.client.start();
         System.out.println("zookeeper连接成功");
+        this.cache = new serviceCache();
+        //加入zookeeper事件监听器
+        WatchZk watcher=new WatchZk(client,cache);
+        watcher.watchToUpdate(ROOT_PATH);
     }
     //根据服务名返回地址
     @Override
     public InetSocketAddress serviceDiscovery(String serviceName) {
-        try{
-            //获取服务名对应路径下的所有子节点，子节点通常保存服务实例的地址(ip:port 格式)
-            List<String> strings = this.client.getChildren().forPath("/" + serviceName);
-            //这里默认用第一个，后续加负载均衡
-            String string = strings.get(0);
-            //将子节点字符串(ip:port 格式)解析为InetSocketAddress，便于和客户端通信
-            return parseAddress(string);
+        try {
+            //先从本地缓存中找
+            List<String> serviceList=cache.getServiceFromCache(serviceName);
+            //如果找不到，再去zookeeper中找
+            //这种i情况基本不会发生，或者说只会出现在初始化阶段
+            if(serviceList==null) {
+                serviceList=client.getChildren().forPath("/" + serviceName);
+            }
+            // 负载均衡得到地址
+            String address = new ConsistencyHashBalance().balance(serviceList);
+            return parseAddress(address);
         } catch (Exception e) {
             e.printStackTrace();
         }

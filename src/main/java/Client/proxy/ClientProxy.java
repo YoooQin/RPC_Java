@@ -12,7 +12,7 @@ public class ClientProxy implements InvocationHandler{
     //传入参数service接口的class对象，反射封装成一个request
     //传入不同的client(netty/simple)，调用公告接口sendRequest发送请求
     private RpcClient rpcClient;
-    public ClientProxy(){
+    public ClientProxy() throws InterruptedException {
         this.rpcClient = new NettyRpcClient();
     }
     @Override

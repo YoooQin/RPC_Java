@@ -4,7 +4,7 @@ import common.service.UserService;
 import common.pojo.User;
 
 public class TestClient {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         //创建ClientProxy对象，并将其连接到服务端
         ClientProxy clientProxy = new ClientProxy();
         //创建代理对象
