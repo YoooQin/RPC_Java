@@ -12,6 +12,7 @@
 - Lombok
 - SLF4J + Log4j2
 - FastJSON 1.2.83
+- Guava Retrying 2.0.0
 
 ## 项目结构
 
@@ -113,9 +114,9 @@ mvn exec:java -Dexec.mainClass="Client.proxy.TestClient" -Dexec.args="netty"
 - [x] 服务注册中心（ZooKeeper）
 - [x] 负载均衡
 - [x] 更多序列化方式支持（JSON）
+- [x] 超时重试机制
 - [ ] 服务熔断
 - [ ] 异步调用
 - [ ] 连接池管理
 - [ ] 心跳检测
-- [ ] 超时重试机制
 - [ ] 更多序列化方式支持（Protocol Buffers） 
