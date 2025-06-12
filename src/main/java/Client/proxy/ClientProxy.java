@@ -7,13 +7,18 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import common.Message.RpcRequest;
 import common.Message.RpcResponse;
+import Client.serviceCenter.serviceCenter;
+import Client.serviceCenter.ZKServiceCenter;
+import Client.retry.guavaRetry;
 
 public class ClientProxy implements InvocationHandler{
     //传入参数service接口的class对象，反射封装成一个request
     //传入不同的client(netty/simple)，调用公告接口sendRequest发送请求
     private RpcClient rpcClient;
+    private serviceCenter serviceCenter;
     public ClientProxy() throws InterruptedException {
         this.rpcClient = new NettyRpcClient();
+        this.serviceCenter = new ZKServiceCenter();
     }
     @Override
     public Object invoke(Object proxy,Method method,Object[] args) throws Throwable{
@@ -26,7 +31,15 @@ public class ClientProxy implements InvocationHandler{
         .build();
         //与服务端通信，将请求发送出去，并且接收服务端的响应
         //通过IOClient发送请求
-        RpcResponse response = rpcClient.sendRequest(request);
+        RpcResponse response;
+        //后续添加逻辑：为保持幂等性，对白名单上的服务进行重试
+        if(serviceCenter.checkRetry(request.getInterfaceName())){
+            //调用retry包中的guavaRetry类进行重试
+            response = new guavaRetry().sendServiceWithRetry(request, rpcClient);
+        }
+        else{//只调用一次
+            response = rpcClient.sendRequest(request);
+        }
         return response.getData();
     }
     //动态生成一个实现制定接口的代理对象

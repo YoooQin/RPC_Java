@@ -18,6 +18,7 @@ public class ZKServiceCenter implements serviceCenter {
     private CuratorFramework client;
     //zookeeper根路径节点
     private static final String ROOT_PATH = "MyRPC";
+    private static final String RETRY = "CanRetry";
     //serviceCache
     private serviceCache cache;
 
@@ -66,5 +67,22 @@ public class ZKServiceCenter implements serviceCenter {
     private InetSocketAddress parseAddress(String address){
         String[] result = address.split(":");
         return new InetSocketAddress(result[0], Integer.parseInt(result[1]));
+    }
+    @Override
+    public boolean checkRetry(String serviceName){
+        boolean canRetry = false;
+        try{
+            List<String> serviceList = client.getChildren().forPath("/" + RETRY);
+            for(String service : serviceList){
+                if(service.equals(serviceName)){
+                    canRetry = true;
+                    System.out.println("服务" + serviceName + "在白名单上，可以重试");
+                    break;
+                }
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return canRetry;
     }
 }

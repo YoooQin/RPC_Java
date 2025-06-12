@@ -23,7 +23,7 @@ public class ServiceProvider {
         this.serviceRegister=new ZKServiceRegister();
     }
     //本地注册服务
-    public void provideServiceInterface(Object service){//接收一个服务实例
+    public void provideServiceInterface(Object service, boolean canRetry){//接收一个服务实例
         //获得服务实例的类名
         String serviceName = service.getClass().getName();
         //获得服务对象实现的所有接口
@@ -32,7 +32,7 @@ public class ServiceProvider {
             //将接口的全限定名和实例传入map
             interfaceProvider.put(i.getName(),service);
             //注册服务
-            serviceRegister.register(i.getName(),new InetSocketAddress(host,port));
+            serviceRegister.register(i.getName(),new InetSocketAddress(host,port),canRetry);
         }
     }
     //获取服务实例
