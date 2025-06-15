@@ -11,6 +11,8 @@
 - **可扩展序列化**：支持 JSON 序列化（可轻松扩展至 Protobuf、Kryo 等）。
 - **重试机制**：为关键服务提供基于 Guava-Retrying 的失败重试能力。
 - **服务缓存**：客户端会缓存服务地址，提升性能并降低注册中心压力。
+- **服务限流**：基于令牌桶算法实现的服务限流，保护服务端不被过载。
+- **熔断机制**：集成熔断器，在服务异常时自动熔断，防止级联故障。
 
 ## 🛠️ 技术栈
 
@@ -28,13 +30,16 @@ src/main/java/
 │   ├── cache/            # 本地服务缓存
 │   ├── serviceCenter/    # 服务发现与负载均衡
 │   ├── netty/            # Netty 客户端实现
-│   └── rpcClient/        # RPC 客户端接口与实现
+│   ├── rpcClient/        # RPC 客户端接口与实现
+│   ├── circuitBreaker/   # 熔断器实现
+│   └── retry/            # 重试机制
 ├── Server/                # 服务端模块
 │   ├── provider/          # 服务提供者
 │   ├── serviceRegister/   # 服务注册
 │   ├── server/           # RPC 服务器接口与实现
-│   └── netty/            # Netty 服务端实现
-└── common/                 # 公共模块
+│   ├── netty/            # Netty 服务端实现
+│   └── ratelimit/        # 服务限流实现
+└── common/                # 公共模块
     ├── Message/           # RPC 消息定义
     ├── pojo/              # 数据实体
     ├── service/           # 服务接口
@@ -94,7 +99,8 @@ mvn exec:java -Dexec.mainClass="com.your.package.YourClient"
 - [x] 服务注册中心（ZooKeeper）
 - [x] 多种负载均衡策略
 - [x] 失败重试机制
-- [ ] 服务熔断与降级
+- [x] 服务熔断与降级
+- [x] 服务限流
 - [ ] 异步调用支持
 - [ ] 连接池优化
 - [ ] 心跳检测
