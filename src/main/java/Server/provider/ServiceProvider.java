@@ -2,6 +2,8 @@ package Server.provider;
 
 import Server.serviceRegister.ServiceRegister;
 import Server.serviceRegister.Impl.ZKServiceRegister;
+import Server.ratelimit.RateLimit;
+import Server.ratelimit.provider.RateLimitProvider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,12 +17,15 @@ public class ServiceProvider {
     private int port;
     //注册服务类
     private ServiceRegister serviceRegister;
+    //速率限制器
+    private RateLimitProvider rateLimitProvider;
     public ServiceProvider(String host,int port){
         //需要传入服务端自身的网络地址
         this.host=host;
         this.port=port;
         this.interfaceProvider=new HashMap<>();
         this.serviceRegister=new ZKServiceRegister();
+        this.rateLimitProvider=new RateLimitProvider();
     }
     //本地注册服务
     public void provideServiceInterface(Object service, boolean canRetry){//接收一个服务实例
@@ -38,5 +43,9 @@ public class ServiceProvider {
     //获取服务实例
     public Object getService(String interfaceName){
         return interfaceProvider.get(interfaceName);
+    }
+    //获取速率限制器
+    public RateLimitProvider getRateLimitProvider(){
+        return rateLimitProvider;
     }
 }

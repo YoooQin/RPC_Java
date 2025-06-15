@@ -9,6 +9,8 @@ import common.Message.RpcResponse;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
+import Server.ratelimit.RateLimit;
+
 @AllArgsConstructor
 public class NettyRpcServerHandler extends SimpleChannelInboundHandler<RpcRequest>{
     private ServiceProvider serviceProvider;
@@ -27,15 +29,22 @@ public class NettyRpcServerHandler extends SimpleChannelInboundHandler<RpcReques
     private RpcResponse getResponse(RpcRequest request){
         //获取服务名
         String interfaceName = request.getInterfaceName();
+        //获取速率限制器
+        RateLimit rateLimit = serviceProvider.getRateLimitProvider().getRateLimit(interfaceName);
+        //判断是否需要限流
+        if(!rateLimit.getToken()){
+            //若获取令牌失败，则进行限流
+            System.out.println("服务限流！");
+            return RpcResponse.fail();
+        }
         //获取服务端服务名对应的实现类
         Object service = serviceProvider.getService(interfaceName);
         //反射调用方法
         Method method = null;
         try{
             method = service.getClass().getMethod(request.getMethodName(), request.getParamsType());
-            method.setAccessible(true);
-            Object revoke = method.invoke(service, request.getParams());
-            return RpcResponse.success(revoke);
+            Object invoke = method.invoke(service, request.getParams());
+            return RpcResponse.success(invoke);
         }catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException e){
             e.printStackTrace();
             System.out.println("方法执行错误");
