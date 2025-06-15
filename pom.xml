@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
+    <groupId>com.yoqin</groupId>
     <artifactId>rpc-mine</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -32,17 +32,17 @@
         <dependencies>
             <!-- 内部模块依赖 -->
             <dependency>
-                <groupId>org.example</groupId>
+                <groupId>com.yoqin</groupId>
                 <artifactId>krpc-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.example</groupId>
+                <groupId>com.yoqin</groupId>
                 <artifactId>krpc-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.example</groupId>
+                <groupId>com.yoqin</groupId>
                 <artifactId>krpc-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
